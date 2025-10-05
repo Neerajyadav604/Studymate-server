@@ -2,7 +2,7 @@ const Course = require("../models/course");
 const Category = require("../models/category");
 const User = require("../models/userModel");
 const { uploadImageToCloudinary } = require("../utils/imageUploader");
-const CourseProgress = require("../models/CourseProgress")
+const CourseProgress = require("../models/courseProgress")
 
 exports.createCourse = async (req, res) => {
   try {
