@@ -7,14 +7,14 @@ const profileSchema = new  mongoose.Schema({
     },
 
     dateOfBirth:{
-      tyoe:String
+      type:String
     },
     about:{
         type:String,
         trim:true,
 
     },
-    contact:{
+    contactNumber:{
         type:Number,
         trim:true
     }

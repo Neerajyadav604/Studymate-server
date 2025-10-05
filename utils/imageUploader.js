@@ -3,6 +3,7 @@ const cloudinary = require("cloudinary").v2;
 exports.uploadImageToCloudinary = async (file, folder, height, quality) => {
   try {
     // Input validation
+    console.log(file)
     if (!file) {
       throw new Error("No file provided");
     }

@@ -7,9 +7,12 @@ exports.createsection = async (req, res) => {
 
     // Validate input
     if (!sectionName || !courseID) {
+      console.log("sectionName :",sectionName)
+      console.log("courseId :",courseID)
       return res.status(400).json({
         success: false,
         message: "Require all the fildes"
+        
       });
     }
 

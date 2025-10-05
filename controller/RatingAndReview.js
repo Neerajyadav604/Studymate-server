@@ -8,11 +8,15 @@ exports.createRating = async (req, res) => {
     const userId = req.user.id;
     const { rating, review, courseId } = req.body;
 
+    console.log(req.user.id);
+    console.log(rating,review,courseId);
+
     // Check if user is enrolled in the course
     const courseDetails = await Course.findOne({
       _id: courseId,
-      studentEnrolled: { $elemMatch: { $eq: userId } },
+      studentsEnrolled: { $elemMatch: { $eq: userId } },
     });
+    console.log(courseDetails);
 
     if (!courseDetails) {
       return res.status(404).json({
@@ -45,7 +49,7 @@ exports.createRating = async (req, res) => {
     // Push the rating into course model
     await Course.findByIdAndUpdate(
       { _id: courseId },
-      { $push: { ratingAndReviwes: ratingReview._id } }, // store ObjectId
+      { $push: { ratingAndReviews: ratingReview._id } }, // store ObjectId
       { new: true }
     );
 
@@ -112,7 +116,7 @@ exports.getAllRating = async (req, res) => {
         select: "firstName lastName email image",
       })
       .populate({
-        path: "course",
+        path: "course", // ✅ lowercase to match schema
         select: "courseName",
       })
       .sort({ rating: "desc" });

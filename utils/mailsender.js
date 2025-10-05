@@ -11,12 +11,12 @@ auth:{
 },
         })
 
-        let info = await transporter.sendMail({
-            from:"StudyMate",
-            to:`${email}`,
-            subject:`${title}`,
-            html:`${body}`
-        })
+       let info = await transporter.sendMail({
+  from: `"StudyMate" <${process.env.MAIL_USER}>`,  // 👈 Correct format
+  to: email,
+  subject: title,
+  html: body,
+});
 
         console.log(info)
        return info;

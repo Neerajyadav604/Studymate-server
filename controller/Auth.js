@@ -101,6 +101,9 @@ exports.signUp = async (req, res) => {
       });
     }
 
+    console.log(otp);
+    console.log(recentotp[0].otp);
+
     if (otp !== recentotp[0].otp) {
       return res.status(400).json({
         success: false,
@@ -153,7 +156,10 @@ exports.logIn = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email }).populate("additionalDetails").exec();
+    const user = await User.findOne({ email })
+      .populate("additionalDetails")
+      .exec();
+
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -173,6 +179,9 @@ exports.logIn = async (req, res) => {
       id: user._id,
       email: user.email,
       accountType: user.accountType,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      image: user.image, // ✅ keep image in payload too
     };
 
     const token = jwttoken.sign(payload, process.env.JWT_SECRET, {
@@ -191,6 +200,9 @@ exports.logIn = async (req, res) => {
         id: user._id,
         email: user.email,
         accountType: user.accountType,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        image: user.image, // ✅ include image here
       },
       message: "Logged in successfully",
     });
@@ -256,4 +268,69 @@ exports.changePassword = async (req, res) => {
       error: error.message,
     });
   }
+};
+
+const { OAuth2Client } = require('google-auth-library');
+const GoogleUser = require('../models/GoogleAccount');
+
+
+const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const client = new OAuth2Client(CLIENT_ID);
+
+// Handle Google login
+exports.googleLogin = async (req, res) => {
+  try {
+    const { credential } = req.body;
+
+    if (!credential) {
+      return res.status(400).json({ success: false, message: "No credential provided" });
+    }
+
+    // Verify Google token
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const googleId = payload['sub'];
+    const name = payload['name'];
+    const email = payload['email'];
+
+    // Check if user exists
+    let user = await GoogleUser.findOne({ googleId });
+    if (!user) {
+      // Create new Google user
+      user = await GoogleUser.create({ googleId, name, email });
+    }
+
+    // Optional: store in session
+    req.session.user = user;
+
+    res.status(200).json({
+      success: true,
+      message: "Login successful",
+      user,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Google login failed",
+      error: error.message,
+    });
+  }
+};
+
+// Example protected route
+exports.googleDashboard = (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ success: false, message: "Please login first." });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: `Welcome ${req.session.user.name}`,
+    user: req.session.user,
+  });
 };
