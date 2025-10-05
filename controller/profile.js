@@ -2,7 +2,7 @@ const Profile = require("../models/profileSchema");
 const User = require("../models/userModel");
 const Course = require("../models/course"); // needed for unenroll
 const { uploadImageToCloudinary } = require("../utils/imageUploader");
-const CourseProgress = require("../models/CourseProgress")
+const CourseProgress = require("../models/courseProgress")
 
 // Update Profile
 exports.updateProfile = async (req, res) => {
